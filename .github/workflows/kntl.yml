@@ -1,0 +1,40 @@
+# Nama workflow yang akan muncul di tab Actions
+name: 自動解凍 (Auto Unzip)
+
+# Pemicu: Workflow ini akan berjalan setiap kali ada 'push' ke branch 'main'
+on:
+  push:
+    branches:
+      - main
+
+# Izin: Memberi izin pada workflow untuk menulis kembali ke repositori Anda
+permissions:
+  contents: write
+
+# Daftar pekerjaan yang akan dilakukan
+jobs:
+  unzip-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      # Langkah 1: Mengunduh kode dari repositori Anda ke server runner
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Langkah 2: Menjalankan perintah unzip
+      # PENTING: Ganti 'NAMA_FILE_ANDA.zip' dengan nama file zip Anda yang sebenarnya
+      - name: Unzip Project Archive
+        run: unzip kntlkuda.zip
+
+      # Langkah 3: Menghapus file .zip asli agar tidak ada duplikasi
+      - name: Remove Original Zip File
+        run: rm kntlkuda.zip
+
+      # Langkah 4: Melakukan commit dan push untuk semua file yang sudah diekstrak
+      - name: Commit and Push Unzipped Files
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "ci: ✨ Otomatis ekstrak file proyek" || echo "Tidak ada perubahan untuk di-commit"
+          git push
+          
